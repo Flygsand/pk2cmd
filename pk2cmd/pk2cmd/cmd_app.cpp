@@ -84,12 +84,8 @@ void Ccmd_app::PK2_CMD_Entry(int argc, _TCHAR* argv[])
 		return;
 	}
 	else
-	{ // no -B, check PATH
-		_tsearchenv_s("PK2DeviceFile.dat", "PATH", tempString);
-		if (_tcslen(tempString) < 17)
-		{
-			_tcsncpy_s(tempString, "PK2DeviceFile.dat", 17);
-		}
+	{ // no -B
+		_tcsncpy_s(tempString, "/usr/local/share/pk2/PK2DeviceFile.dat", 38);
 	}
 	if (!PicFuncs.ReadDeviceFile(tempString))
 	{
@@ -496,10 +492,18 @@ bool Ccmd_app::bootloadArg(int argc, _TCHAR* argv[])
 			ret = Pk2BootLoadFuncs.ReadHexAndDownload(tempString, &PicFuncs, pk2UnitIndex);
 			if (!ret)
 			{
-				printf("Error opening hex file.\n");
-				fflush(stdout);
-				ReturnCode = OPFAILURE;
-				return true; // download command found
+				_TCHAR temp2String[MAX_PATH] = "";
+				_tcsncpy_s(temp2String, tempString, MAX_PATH-1);
+				_tcsncpy_s(tempString, "/usr/local/share/pk2/", 21);
+				_tcscat_s(tempString, temp2String);
+				ret = Pk2BootLoadFuncs.ReadHexAndDownload(tempString, &PicFuncs, pk2UnitIndex);
+				if (!ret)
+				{
+					printf("Error opening hex file.\n");
+					fflush(stdout);
+					ReturnCode = OPFAILURE;
+					return true; // download command found
+				}
 			}
 			ret = Pk2BootLoadFuncs.ReadHexAndVerify(tempString, &PicFuncs);
 			if (!ret)
